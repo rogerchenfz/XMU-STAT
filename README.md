@@ -9,3 +9,6 @@
 - 大一到大四学习资料：统计学国际化试验班、经济统计学、数据科学与大数据技术
 - 编程软件：C、MATLAB、R、Python、SQL、SPSS、Stata、Hadoop、Spark、LaTex等编程语言及软件资料
 - 经验分享：保研、考研、出国、就业、竞赛等经验分享
+
+## 友情链接
+- [XMU Helper](https://github.com/rogerchenfz/XMU-Helper)：厦门大学攻略大全
