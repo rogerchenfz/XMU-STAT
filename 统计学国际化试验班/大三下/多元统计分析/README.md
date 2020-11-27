@@ -1,4 +1,4 @@
-课件。
+教材及课件。
 
 [MOOC](https://www.icourse163.org/course/XMU-1206305809)、[b站](https://www.bilibili.com/video/BV1v7411E7PB)：中文讲解，MOOC上包括每一章的相关R代码。
 
