@@ -1,0 +1,32 @@
+\documentclass[a4paper,12pt]{article} %文档类型
+%常用的文档类有:article, book, beamer, ctexart, ctexbook
+%常用的选项有:
+%10pt(缺省值)，11 pt, 12pt指定基本字体的大小
+%letterpaper(缺省值)，a4paper, a5paper, ... 指定纸张的大小
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{ctex}
+\usepackage{xcolor}
+%多种公式环境和数学命令
+\usepackage{float}
+\usepackage{array}           %数组和表格制作
+\usepackage{fancyhdr}        %页眉页脚设置
+\usepackage{listings}        %代码输入环境
+\usepackage{graphicx}        %插图
+\usepackage{tabularx}        %自动设置表格列宽
+\usepackage{multirow}        %跨行表格
+\usepackage{multicol}        %跨列表格
+\usepackage{titlesec}        %标题设置
+%\titleformat{\section}{\normalfont\Large\bfseries\center}{\thesection}{1em}{}
+\usepackage{titletoc}        %目录格式设置
+\usepackage[top=2.5cm,bottom=2.0cm,left=2.0cm,right=2.0cm]{geometry} %页边距
+\newcommand{\hei}{\CJKfamily{hei}}  %定义的新命令
+\newcommand{\li}{\CJKfamily{li}}
+\linespread{1.25}   %1.5倍行距
+%代码格式设置
+\lstset{numbers=left, numberstyle=\tiny, keywordstyle=\color{blue!70}, commentstyle=\color{red!50!green!50!blue!50}, frame=shadowbox, rulesepcolor=\color{red!20!green!20!blue!20},escapeinside=``, xleftmargin=2em,xrightmargin=2em, aboveskip=1em}
+
+
+\begin{document}
+大家好
+\end{document}
