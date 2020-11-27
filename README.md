@@ -21,3 +21,4 @@
 
 ## 友情链接
 - [XMU Helper](https://github.com/rogerchenfz/XMU-Helper)：厦门大学攻略大全
+- [编程相关的课程及公开资源盘点](https://zhuanlan.zhihu.com/p/296928345)：盘点厦门大学编程相关的课程及公开资源，内容包括 Python、R、MATLAB、SQL、LaTex、Stata、SPSS、Hadoop、Spark 等编程语言和软件的课程及资源链接。
