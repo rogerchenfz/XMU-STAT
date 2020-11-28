@@ -16,7 +16,7 @@
 
 ## 使用说明
 - 建议电脑端访问。根据需要访问对应文件夹，使用前请仔细阅读每个文件夹的 README.md 文件。
-- [如何从 GitHub 上下载单个文件夹？ - 知乎](https://www.zhihu.com/question/25369412)
+- 如果要下载单个文件夹，复制该文件夹的网址，粘贴入 [DownGit](https://minhaskamal.github.io/DownGit/#/home) 中，选择 download 即可。补充：[如何从 GitHub 上下载单个文件夹？ - 知乎](https://www.zhihu.com/question/25369412)
 - 学习资源**禁止转载**。如有侵权请联系 [rogerchenfz](https://github.com/rogerchenfz/) 删除。
 
 ## 友情链接
