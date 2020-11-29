@@ -14,11 +14,13 @@
 ### Chapter 9 Time Series Regression
 ### Chapter 10 Conditional Heteroscedastic Models
 
+---
+
 2020
 
 ### Chapter 7 Forecasting
-### Chapter 8 Seasonalityf
-### Chapter 9 Case_Study
+### Chapter 8 Seasonality
+### Chapter 9 Case Study
 ### Chapter 10 Volatility
 ### Chapter 11 Covariance-stationary Vector Processes
 ### Chapter 12 Regression and Spurious Regression
