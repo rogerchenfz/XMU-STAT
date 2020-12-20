@@ -1,5 +1,7 @@
 教材、课件、代码及论文。
 
+[MOOC](https://www.icourse163.org/course/XMU-1461788171)：授课老师为李木易老师，中文讲解
+
 ## Contents
 
 ### Chapter 0 Introduction
