@@ -5,6 +5,7 @@
 [![](https://img.shields.io/github/stars/rogerchenfz/XMU-STAT.svg?style=flat)](https://github.com/rogerchenfz/XMU-STAT/stargazers)
 [![](https://img.shields.io/github/forks/rogerchenfz/XMU-STAT.svg?style=flat)](https://github.com/rogerchenfz/XMU-STAT/network/members)
 ![](https://img.shields.io/github/repo-size/rogerchenfz/XMU-STAT.svg?style=flat)
+![](https://img.shields.io/github/last-commit/rogerchenfz/XMU-STAT.svg?style=flat)
 
 厦门大学经济学院统计系学习资源：包括统计学国际化试验班、经济统计学、数据科学与大数据技术大一到大四的学习资料。
 
