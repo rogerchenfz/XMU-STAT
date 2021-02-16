@@ -1,0 +1,350 @@
+source("functions-Ch4.R")
+
+            #########################################
+            ##  Paired-Comparison Permutation Test ##
+            ##          permuting the signs of Di   ##
+           #########################################
+
+##
+##### Blood Count Data
+##
+redB = c(3.93, 5.35, 5.39, 5.16, 5.13)
+redC = c(3.86, 5.10, 5.39, 5.01, 5.05)
+d <- redC-redB
+(dbar = mean(d))
+
+n=length(d)
+m=2^n
+
+
+### n=5 and 2^5 > 32. If there are too many combinations, use the random permutation implemented by function perm.approx.dbar, e.g. you can use permdbars <- perm.approx.dbar(d, R=1000)
+permdbars <- perm.dbar(d)
+
+#pvalue for one-tailed test H_a: measures for redB tend to be larger than measures for redC
+#reject if dbar is too large (positive)
+(pval.upper = mean(permdbars >= dbar))
+
+#pvalue for one-tailed test H_a: measures for redB tend to be smaller than measures for redC
+#reject if dbar is too small (negative)
+(pval.lower = mean(permdbars <= dbar))
+
+#pvalue for two-tailed test H_a: measures for redB tend to be either larger or smaller than measures for redC
+#reject if dbar is either too large (positive) or too small (negative)
+(pval.twotail = mean(abs(permdbars) >= abs(dbar)))
+
+##
+##### Depression Data
+##
+before = c(1.83, 0.5, 1.62, 2.48, 1.68, 1.88, 1.55, 3.06, 1.30)
+after = c(0.88, 0.65, 0.59, 2.05, 1.06, 1.29, 1.06, 3.14, 1.29)
+d <- before-after
+(dbar = mean(d))
+
+#two-sample t-test (lack of power, ignored within-subject correlation)
+t.test(before, after)
+
+#paired t-test: one-sample t-test on differences
+t.test(d)
+
+### n=9 and 2^9=512, so we can obtain the exact permutation distribution
+permdbars <- perm.dbar(d)
+
+#pvalue for one-tailed test H_a: measures before tend to be larger than measures after
+#reject if dbar is too large (positive)
+(pval.upper = mean(permdbars >= dbar))
+
+#pvalue for one-tailed test H_a: measures before tend to be smaller than measures after
+#reject if dbar is too small (negative)
+(pval.lower = mean(permdbars <= dbar))
+
+#pvalue for two-tailed test H_a: measures before tend to be either larger or smaller than measures after 
+#reject if dbar is either too large (positive) or too small (negative)
+(pval.twotail = mean(abs(permdbars) >= abs(dbar)))
+
+            ####################################################
+            ##  Test for the median of symmetric distribution ##
+            ##      using paired-comparison permutation test  ##
+            ####################################################
+### Test if the median of rainfall is greater than 23
+x =c(26.8, 18.9, 36.3, 28, 17.9, 25, 27.5, 27.7, 32.1, 28, 30.9, 20, 20.2, 33.5, 26.4, 30.9, 33.2)
+median(x)
+hist(x)
+abline(v=23, col="red")
+
+d <- x - 23
+#2^(17)=131072 total permutations
+permdbars <- perm.approx.dbar(d,10000)
+
+(dbar = mean(d))
+
+## Upper tail test of Ha: median rainfull > 23
+(pval.upper =mean(permdbars >= dbar))
+
+## Two-tail test of Ha: median different from 23
+(pval.2side = mean(abs(permdbars) >= abs(dbar)))
+
+
+            ###########################
+            ##  Wilcoxon Signed-rank ##
+            ###########################
+
+## subset of the red blood count data
+x = c(3.93, 5.35, 5.39, 5.16, 5.13) #reagent B
+y = c(3.86, 5.10, 5.39, 5.01, 5.05) #reagent C
+d = y-x
+
+#If only x is given, or if both x and y are given and paired is TRUE,
+# a Wilcoxon signed rank test of the null that the distribution of x
+#(in the one sample case) or of x - y (in the paired two sample case)
+#is symmetric about mu (default is zero) is performed.
+wilcox.test(d)
+wilcox.test(x, y, paired=T)
+
+#function to obtain the signed ranks
+signrank <- function(x){rank(abs(x))* sign(x) }
+
+### permutation distribution of average signed-rank
+permdbars <- perm.dbar(signrank(d))
+
+signrank.obs = mean(signrank(d))
+
+  ## Lower tail test for Ha: measures for redC tend to be
+  ##   smaller than measures for redB
+mean(permdbars <= signrank.obs)
+
+  ## Two-tail test for Ha: measures for redC tend to be
+  ##   either larger or smaller than measures for redB
+
+mean(abs(permdbars) >= abs(signrank.obs))
+
+
+
+            #################################
+            ##  Permutation Test for RCBD ##
+            #################################
+### Analysis of the soybean data set
+
+x = c(8, 10, 12, 13, 11, 2, 6, 7, 11, 5, 4, 10, 9, 8, 10, 3, 5, 9, 10, 6, 9, 7, 5, 5, 3) # Number of failures out of 100 planted soybean seeds
+blocks = rep(1:5,5)
+grps=rep(1:5,each=5)   #grps = rep(1:5,rep(5,5)) # Treatments on seeds to enhance germination:
+                     # 1=none, 2=Arasan, 3=Spergon, 4=Semesan, 5=Fermate
+
+#F-test
+summary(aov(x~factor(grps)+factor(blocks)))
+
+
+#  Permutation Test for RCBD
+### Step 1: calculate observed SSTM:sum of squared group-means
+SSTMobs <- getSSTM(x,grps)
+SSTMobs
+
+### Step 2: obtain the permutation distribution of SSTM under H0
+###             i.e. obtain SSTM*'s with R permutations
+
+permSSTM <- perm.approx.RCBD(x,grps,blocks,R=1000)
+
+### Step3: calculate the p-value
+(pval = mean(permSSTM >= SSTMobs))
+
+
+            #################################
+            ##   Friedman Test for RCBD    ##
+            #################################
+## Analysis of the soybean data set
+x = c(8, 10, 12, 13, 11, 2, 6, 7, 11, 5, 4, 10, 9, 8, 10, 3, 5, 9, 10, 6, 9, 7, 5, 5, 3)
+blocks = rep(1:5,5)
+grps = rep(1:5,rep(5,5))
+
+mat <- cbind(x,grps,blocks)
+### sort by the blocks
+mat <- mat[order(mat[,3]),]
+
+#obtain the within-block ranks
+Rij = rankinblock(x,blocks)
+
+#calculate observed SSTM:sum of squared group-means of within-block ranks
+SSTMobs <- getSSTM(Rij,grps)
+
+##obtain the permutation distribution of SSTM (based on within-block ranks)
+set.seed(12379901)
+permSSTM <- perm.approx.RCBD(Rij,grps,blocks,1000)
+(pval=mean(permSSTM >= SSTMobs))
+
+### Use the R function: Friedman rank sum test with unreplicated blocked data
+friedman.test(x, grps, blocks)  ### based on chi-square approximation
+
+#### an alternative (manual) way to calculate the Friedman test statistic
+Ri = getmeans(Rij, grps)
+K = length(unique(grps))
+J = length(unique(blocks))
+
+# calculate Sbj2: sample variance of the ranks within block j
+Sbj2 = apply(matrix(Rij, ncol=J, byrow=T),2,var)
+(FM = J^2/sum(Sbj2)*sum((Ri - (K+1)/2)^2))
+
+
+
+            #################################
+            ##  Cochran's Q test for RCBD  ##
+            #################################
+##
+######  Wart data
+##
+x = c(0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1) # 0 = wart returned, 1 = wart successfully removed
+
+blocks = rep(1:7,4)
+grps = rep(1:4,rep(7,4))   # Treatments: 1=freezing, 2=surgical, 3=salicylic acid, 4=duct tape
+
+
+### Use the R function: Friedman rank sum test with unreplicated blocked data
+friedman.test(x, grps, blocks)  ### based on chi-square approximation
+
+#### manually calculate FM test statistic
+Rij=rankinblock(x,blocks)
+rank.mat = matrix(Rij,nrow=4,byrow=T)
+Ri=apply(rank.mat, 1, mean)
+K = length(unique(grps))
+J = length(unique(blocks))
+# calculate Sbj2: sample variance of the ranks within block j
+Sbj2 = apply(matrix(Rij, ncol=J, byrow=T),2,var)
+(FM = J^2/sum(Sbj2)*sum((Ri - (K+1)/2)^2))
+
+
+### permutation based on within-block ranks, equivalent to Cochran's Q test
+SSTMobs <- getSSTM(rankinblock(x,blocks),grps)
+SSTMobs
+permSSTM <- perm.approx.RCBD(rankinblock(x,blocks),grps,blocks,1000)
+mean(permSSTM >= SSTMobs)
+
+### permutation based on raw values
+SSTMobs <- getSSTM(x,grps)
+SSTMobs
+permSSTM <- perm.approx.RCBD(x,grps,blocks,1000)
+mean(permSSTM >= SSTMobs)
+
+            ########################
+            ##  Kendall's W test  ##
+            ########################
+
+##
+###### Leadership example
+##
+x = c(3, 2, 2, 2, 1, 1, 4, 4, 3, 1, 3, 2, 5, 5, 4)
+## supervisor(judge): block
+## employee: grps
+grps = rep(1:5, each=3)  #employee
+blocks = rep(1:3, 5) #supervisor
+
+SSTMobs <- getSSTM(rankinblock(x,blocks),grps)
+SSTMobs
+permSSTM <- perm.approx.RCBD(rankinblock(x,blocks),grps,blocks,1000)
+mean(permSSTM >= SSTMobs)
+
+### Use the R function: Friedman rank sum test with unreplicated blocked data
+friedman.test(x, grps, blocks)  ### based on chi-square approximation
+
+
+##
+##### Aptitude scores
+##
+mechanical = c(4,6,1,2,8,10,9,3,5,7)
+artistic = c(5,2,8,6,1,3,7,4,9,10)
+literacy = c(7,1,9,5,2,4,6,3,8,10)
+musical = c(6,5,2,10,8,3,4,1,7,9)
+math=c(5,7,2,1,9,8,10,4,6,3)
+clerical=c(1,4,9,7,5,3,2,8,10,6)
+mat = cbind(mechanical, artistic, literacy, musical, math, clerical)
+
+x = as.vector(mat)
+student = rep(1:nrow(mat), 6)
+area = rep(1:6,each=nrow(mat))
+
+grps = student
+blocks = area
+
+SSTMobs <- getSSTM(rankinblock(x,blocks),grps)
+SSTMobs
+permSSTM <- perm.approx.RCBD(rankinblock(x,blocks),grps,blocks,1000)
+mean(permSSTM >= SSTMobs)
+
+### Use the R function: Friedman rank sum test with unreplicated blocked data
+friedman.test(x, grps, blocks)  ### based on chi-square approximation
+
+
+
+
+            ############################################
+            ##  Page's test for ordered alternatives  ##
+            ############################################
+#Different types of farm machinery have different effects on the compaction of soil and thus may affect
+#yields differently.
+#The following data gives yield data from a randomized complte block design in which
+#four different types of tractors were used in tilling the soil,
+#The blocking factor is location of the fields.
+
+x = c(120, 208, 199, 194, 177, 195,
+      207, 188, 181, 164, 155, 175,
+      122, 137, 177, 177, 160, 138,
+      128, 128, 160, 142, 157, 179)
+blocks = rep(1:6, 4)
+grps = rep(1:4, each=6)
+dat = matrix(x, byrow=T, ncol=6)
+
+getsums(rankinblock(x,blocks), grps)
+(Pageobs <- getPage(x, grps,blocks))
+
+permPage <- perm.approx.Page(x,grps,blocks,1000)
+# tests if means are arranged t1 > t2 > t3 > t4, i.e. response decreases as changing trt from 1 to 4
+(pval = mean(permPage <= Pageobs))
+
+## correlation of trt i with the trt-specific rank sum R_i
+cor(1:4, getsums(rankinblock(x,blocks),grps))
+
+friedman.test(x, grps, blocks)  ### based on chi-square approximation
+
+### by incorporating the direction of treatment effects, we are able to capture the significance.
+
+
+#######################
+### some other ordered alterative, e.g. test Ha: t4 > t2 > t3 > t1
+x = c(128, 128, 160, 142, 157, 179,
+      207, 188, 181, 164, 155, 175,
+      122, 137, 177, 177, 160, 138,
+      120, 208, 199, 194, 177, 195)
+dat = matrix(x, byrow=T, ncol=6)
+rownames(dat)=paste("trt",1:4)
+colnames(dat)=paste("block",1:6)
+dat
+
+blocks = rep(1:6,4)
+grps = rep(1:4, each=6)
+(getsums(rankinblock(x,blocks), grps))
+
+### correct way:
+(newgrps = rep(c(4,2,3,1), each=6))
+(Pageobs <- getPage(x,newgrps,blocks))   #note we are using newgrps instead of grps
+
+set.seed(5640)
+permPage=perm.approx.Page(x,newgrps,blocks,R)
+
+mean(permPage <= Pageobs)
+
+
+
+### another way:
+(newgrps = rep(c(1,2,3,4), each=6))
+(Pageobs <- getPage(x,newgrps,blocks))   #note we are using newgrps instead of grps
+
+set.seed(5640)
+permPage=perm.approx.Page(x,newgrps,blocks,R)
+
+mean(permPage >= Pageobs)
+
+# double check 
+
+
+
+
+## correlation of trt i with the trt-specific rank sum R_i
+cor(1:4, getsums(rankinblock(x,blocks),grps))  ### wrong
+cor(c(4,2,3,1), getsums(rankinblock(x,blocks),grps)) ### correct

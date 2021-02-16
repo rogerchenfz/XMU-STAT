@@ -1,0 +1,344 @@
+            ####################################################
+            ##   F-test and Permutation F-test ##
+            ####################################################
+####
+####### Example 4.3.1: random samples from normal populations with unequal variance, 3 groups
+####
+
+## generate the simulation data
+set.seed(1238991)
+n=5
+trt1 = rnorm(n, 15, 9)
+trt2 = rnorm(n, 25, 9)
+trt3 = rnorm(n, 30, 9)
+x = c(trt1, trt2, trt3)
+grps = rep(1:3, each=n)
+
+k=max(grps)
+N=length(x)
+
+summary(aov(x ~ factor(grps)))
+Fobs <- summary(aov(x~factor(grps)))[[1]][1,4]
+
+# permutation based on random sampling 
+Fobsr=rep(NA, 1000)
+for (i in 1:1000)
+{newx=sample(x)
+Fobsr[i]=summary(aov(newx~factor(grps)))[[1]][1,4]}
+mean(Fobsr>Fobs)
+
+
+### rank version 
+# Kruskal-Wallis test with chi-square approximation
+kruskal.test(x,grps)
+
+meanR=rep(NA, k)
+nR=rep(NA, k)
+rank.x = rank(x)
+for (j in 1:k)
+{meanR[j]=mean(rank.x[which(grps==j)])
+nR[j]=sum(grps==j)
+}
+kw=sum(nR*(meanR-mean(meanR))^2)/var(1:N)
+1-pchisq(kw,k-1)
+
+
+### KW using permutation
+Fobs=summary(aov(rank.x ~ factor(grps)))[[1]][1,4]
+
+Fobsr=rep(NA, 1000)
+for (i in 1:1000)
+{newx=sample(1:N)
+Fobsr[i]=summary(aov(newx~factor(grps)))[[1]][1,4]}
+mean(Fobsr>Fobs)
+
+
+
+####
+####### Example: Motivational Effect of Knowledge of Performance
+####
+ctrl = c(40, 35, 38, 43, 44, 41)
+groupB = c(38, 40, 47, 44, 40, 42)
+groupC = c(48, 40, 45, 43, 46, 44)
+x = c(ctrl, groupB, groupC)
+grps = rep(1:3, each=6)
+
+k=max(grps)
+N=length(x)
+rank.x = rank(x)
+
+# Kruskal-Wallis test with chi-square approximation
+kruskal.test(x,grps)
+
+# K-W test with permutation-based approx p-value
+Fobs=summary(aov(rank.x ~ factor(grps)))[[1]][1,4]
+
+Fobsr=rep(NA, 1000)
+for (i in 1:1000)
+{newx=sample(1:N)
+Fobsr[i]=summary(aov(newx~factor(grps)))[[1]][1,4]}
+mean(Fobsr>Fobs)
+
+
+
+
+            #################################################
+            #   Multiple Comparison Permutation Tests  #
+            #################################################
+##
+#######  A simulation study
+##
+x1=c(-0.01, 0.15, 0.25, -0.90, 0.86)       #generated from N(1,1)
+x2 = c(11.14,  9.56, 10.33,  8.45,  9.59)  #generated from N(10,1)
+x3 = c(0.77, 0.03, 1.96, 3.24, 2.40)       #generated from N(1,1)
+
+x = c(x1, x2, x3)
+grps =rep(1:3, each=5)
+k = 3
+
+#ANOVA:
+MSE=summary(aov(x~factor(grps)))[[1]][2,3]
+DF=summary(aov(x~factor(grps)))[[1]][2,1]
+
+
+#Pairwise t-test:
+t.test(x1, x2, var.equal=TRUE)    #sp=(4*var(x1)+4*var(x2))/(5+5-2)  #abs(mean(x2)-mean(x1))/sqrt(sp/5+sp/5)
+t.test(x1, x3, var.equal=TRUE)
+t.test(x2, x3, var.equal=TRUE)
+
+#Bonf 
+abs(mean(x1)-mean(x2))/sqrt(MSE*(1/length(x1)+1/length(x2)))
+qt(1-0.05/2/(k*(k-1)/2), DF)
+
+# Fisher
+summary(aov(x~factor(grps)))
+abs(mean(x1)-mean(x2))/sqrt(MSE*(1/length(x1)+1/length(x2)))
+qt(1-0.05/2, DF)
+
+# Tukey 
+abs(mean(x1)-mean(x2))/sqrt(MSE/2*(1/length(x1)+1/length(x2)))
+
+### Tukey's HDS is also implemented in R by function "TukeyHSD"
+fm1=aov(x ~ factor(grps))
+TukeyHSD(fm1, "factor(grps)", ordered = FALSE)
+
+
+
+####### Example 4.5.1 Clay Percentage (example 3.3.1 in Higgins)
+##
+loc1 = c(26.5, 15, 18.2, 19.5, 23.1, 17.3)
+loc2 = c(16.5, 15.8, 14.1, 30.2, 25.1, 17.4)
+loc3 = c(19.2, 21.4, 26, 21.6, 35, 28.9)
+loc4 = c(26.7, 37.3, 28, 30.1, 33.5, 26.3)
+
+## construct the combined data vector and the group variable indicating the group index of each observation
+x = c(loc1, loc2, loc3, loc4)
+grps = rep(1:4, each=6)
+k=4
+
+MSE=summary(aov(x~factor(grps)))[[1]][2,3]
+DF=summary(aov(x~factor(grps)))[[1]][2,1]
+
+#Bonf 
+abs(mean(loc1)-mean(loc2))/sqrt(MSE*(1/length(loc1)+1/length(loc2)))
+qt(1-0.05/2/(k*(k-1)/2), DF)
+
+# Fisher
+summary(aov(x~factor(grps)))
+abs(mean(loc1)-mean(loc2))/sqrt(MSE*(1/length(loc1)+1/length(loc2)))
+qt(1-0.05/2, DF)
+
+# Tukey 
+abs(mean(x1)-mean(x2))/sqrt(MSE/2*(1/length(loc1)+1/length(loc2)))
+
+
+### Tukey's HDS is also implemented in R by function "TukeyHSD"
+fm1=aov(x ~ factor(grps))
+TukeyHSD(fm1, "factor(grps)", ordered = FALSE)
+plot(TukeyHSD(fm1, "factor(grps)"))
+
+
+##analyze the data by permutation (optional)
+### mean of each trt group
+source("functions-Ch3.R")
+trtmeans <- getmeans(x, grps)
+### pairwise differences of means
+meandiffs <- abs(outer(trtmeans, trtmeans,"-"))
+meandiffs
+
+nn <- table(factor(grps))  #size of each treatment group
+k <- length(trtmeans)  #number of treatments
+
+##
+##### Method 1: Bonferroni correction (the test statistic is similar to pairwise comparison)
+##
+set.seed(1234567)  #you can change the seed
+Bonf.adj(x, grps, k, alpha=0.05, R=1000, test="perm.meandiff")
+Bonf.adj(x, grps, k, alpha=0.05, R=1000, test="ttest")
+
+# Thus Locations 1 and 4 are significantly different
+
+##
+##### Method 2: Fisher's Protected LSD
+##
+Fisher.LSD(x, grps, k, alpha=0.05, R=1000)
+### conclusion: location 4 differs from locations 1 and 2.
+
+##
+##### Method 3: Tukey's HSD (critical values are obtained by permutation)
+##
+Tukey.HSD(x, grps, k, alpha=0.05, R=1000)
+### conclusion: location 4 differs from locations 1 and 2.
+
+
+# Rank version/Repeat the mult. comp. tests with ranks
+
+###KW test with/without permutation
+kruskal.test(x,grps)  
+
+rank.x=rank(x)
+R=matrix(rank.x, nrow=4, byrow=1)
+N=24
+sum(length(loc1)*(apply(R,1,mean)-mean(R))^2)*12/N/(N+1)  # var(1:N)==N*(N+1)/12
+summary(aov(rank.x~factor(grps)))[[1]][1,2]*12/N/(N+1) 
+
+Fobs <- getF(rank.x, grps) 
+set.seed(122356) 
+permFs <- perm.approx.F(rank.x, grps, R=1000) 
+mean(permFs >= Fobs)
+
+#
+trtmeans <- getmeans(rank(x), grps)
+meandiffs <- abs(outer(trtmeans,trtmeans,"-"))
+meandiffs
+### this is the incorrect way to calculate mean rank differences for pairs
+### as the ranks range from 1 to N=24 in this way
+### The correct way: for comparing i and j, ranks are obtained based on only data from trts i and j, and ranks range from 1 to ni+nj.
+
+meandiffs <- matrix(NA,k,k)
+for (i in 2:k) {
+   for (j in 1:(i-1)) {
+   idx1 = which(grps==i)
+   idx2 = which(grps==j)
+   idx = c(idx1, idx2)
+   temp <- rank(x[c(idx1, idx2)])
+   rank.i = temp[1:length(idx1)]
+   rank.j = temp[-(1:length(idx1))]
+   meandiffs[i,j] <- abs(mean(rank.i) - mean(rank.j))
+}}
+meandiffs
+
+
+### The above idea was implemented in functions Bonf.adj.rank, Fisher.LSD.rank and Tukey.HSD.rank
+### for three methods with ranks, so you can use the above three functions directly.
+
+##
+##### Bonferroni with ranks
+##
+set.seed(123456)
+Bonf.adj.rank(x, grps, k, alpha, R=1000)
+
+set.seed(123456)
+##
+#### LSD with ranks
+##
+Fisher.LSD.rank(x, grps, k, alpha=0.05, R=1000)
+
+##
+###### Tukey's HSD with ranks
+##
+set.seed(123456)
+Tukey.HSD.rank(x, grps, k, alpha=0.05, R=1000)
+### conclusion: location 4 differs from locations 1 and 2.
+
+#### boxplots of ranks by group
+boxplot(split(rank(x),as.factor(grps)))
+
+
+
+
+
+
+            ################################
+            #   Ordered Alternatives  #
+            ################################
+### Another R Function: jonckheere.test in the library: clinfun
+
+library(clinfun)
+jonckheere.test(x, grps, alternative="increasing") #based on MW test statistic
+
+#### Example: BAI for Oak stands in southeastern Ohio
+##
+idx1 = c(1.91, 1.53, 2.08, 1.71)
+idx2 = 2.44
+idx3 = c(2.45, 2.04, 1.6, 2.37)
+idx4 = c(2.52, 2.36, 2.73)
+idx5 = c(2.78, 2.88, 2.10, 1.66)
+x = c(idx1, idx2, idx3, idx4, idx5)
+
+c1=rep(1,4)
+c2=rep(2,1)
+c3=rep(3,4)
+c4=rep(4,3)
+c5=rep(5,4)
+grps = c(rep(1,4), 2, rep(3,4), rep(4,3), rep(5,4))
+
+x13=c(idx1,idx3)
+c13=c(c1,c3)
+sum(rank(x13)[which(c13==3)])
+
+trtmeans = getmeans(x, grps)
+nn <- table(factor(grps))  #size of each treatment group
+k <- length(trtmeans)  #number of treatments
+
+### based on rank-sum statistic
+set.seed(1235662)
+JT.ranksum(x, grps, k, R=1000)
+
+###based on Mann-Whitney statistic
+set.seed(1235662)
+JT.MW(x, grps, k, R=1000)
+
+
+# Compare to p-value of KW test (or permutation F test)
+kruskal.test(x, grps)
+# by incorporating the direction of treatment effects, we are able to
+# detect a significant difference among the treatments
+
+Fobs <- getF(x,grps)
+permFs <- perm.approx.F(x,grps,1000)
+mean(permFs >= Fobs)
+
+
+##
+####### Example 3.4.1 from Higgins (mowing heights: agromonist postulated that the phosphorus levels tend to be lower in plants that have been mowed at greater heights)
+### trt1: unmowed
+### trt2: 20cm
+### trt3: 10cm
+### trt4: 5cm (order the trt such that mu1<mu2<..<muK as postulated)
+##
+
+x <- c(13,24.1,11.7,16.3,15.5,24.5,
+       42,18,14,36,11.6,19,
+       15.6,23.8,24.4,24,21,21.1,
+       35.3,22.5,16.9,25,23.1,26)
+grps <- c(rep(1,6),rep(2,6),rep(3,6),rep(4,6))
+nn <- table(factor(grps))
+trtmeans = getmeans(x, grps)
+k <- length(trtmeans)
+trtmeans
+
+### based on rank-sum statistic
+set.seed(1235662)
+JT.ranksum(x, grps, k)
+
+###based on Mann-Whitney statistic
+set.seed(1235662)
+JT.MW(x, grps, k)
+
+# Compare to p-value of KW test (or permutation F test)
+kruskal.test(x, grps)
+Fobs <- getF(x,grps)
+
+permFs <- perm.approx.F(x,grps,1000)
+mean(permFs >= Fobs)
