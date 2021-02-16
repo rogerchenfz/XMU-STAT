@@ -23,3 +23,5 @@ TABLE A11: Upper-Tail Probabilities for Friedman's Test, $P(FM \leq c)$
 TABLE A12: Upper-Tail Probabilities for Spearman Rank Correlation, $P(r_{s} \leq c)$
 
 TABLE A13: Upper-Tail Probabilities for Kendall's Tau, $P(r_{\tau} \leq c)$
+
+![](http://latex.codecogs.com/gif.latex?\\frac{1}{1+sin(x)})
